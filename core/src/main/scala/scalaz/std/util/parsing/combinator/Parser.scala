@@ -7,10 +7,11 @@ package combinator
 import scala.util.parsing.combinator
 
 trait Parsers {
-  class ParsersW[P <: combinator.Parsers](val parser: P) {
-    type Parser[A] = parser.Parser[A]
+  class ParsersW[P <: combinator.Parsers with Singleton] {
+    type Parser[A] = P#Parser[A]
+    object dummyParser extends combinator.Parsers
     def instance: Monad[Parser] = new Monad[Parser] {
-      def pure[A](a: => A): Parser[A] = parser.success(a)
+      def pure[A](a: => A): Parser[A] = dummyParser.success(a).asInstanceOf[Parser[A]] // please look the other way!
       def bind[A, B](fa: Parser[A])(f: (A) => Parser[B]): Parser[B] = fa flatMap f
     }
   }
@@ -20,7 +21,7 @@ trait Parsers {
   // The return type is Monad[p.type#Parser]
   //
   // This way seems to work without -Ydependent-method-types, yay!
-  def parserMonad[P <: combinator.Parsers](p: P) = new ParsersW[P](p).instance
+  implicit def parserMonad[P <: combinator.Parsers with Singleton] = new ParsersW[P].instance
 }
 
 object Parser extends Parsers

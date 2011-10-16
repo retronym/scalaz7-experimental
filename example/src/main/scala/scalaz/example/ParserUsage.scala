@@ -14,7 +14,6 @@ object ParserUsage extends App {
       import scalaz.std.List._ // for Traverse[List]
       import scalaz.std.util.parsing.combinator.Parser.parserMonad
 
-      implicit val M: Monad[Parser] = parserMonad(testParser)
       val sequence: Parser[List[List[String]]] = parsers.sequence
       parseAll(sequence, s)
     }
