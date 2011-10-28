@@ -85,8 +85,6 @@ sealed trait StepT[X, E, F[_], A] {
   def >-[Z](cont: => Z, done: => Z, err: => Z): Z =
     fold(_ => cont, (_, _) => done, _ => err)
 
-  import IterateeT._
-
   def pointI(implicit P: Pointed[F]): IterateeT[X, E, F, A] =
     iterateeT(P.pure(this))
 }
@@ -94,6 +92,7 @@ sealed trait StepT[X, E, F[_], A] {
 object StepT extends StepTs
 
 trait StepTs {
+  type Step[X, E, A] = StepT[X, E, Id, A]
 
   def scont[X, E, F[_], A](c: Input[E] => IterateeT[X, E, F, A]): StepT[X, E, F, A] = new StepT[X, E, F, A] {
     def fold[Z](
