@@ -2,8 +2,8 @@ package scalaz
 package std
 package math
 
-trait BigDecimals {
-  implicit object bigDecimal extends Monoid[BigDecimal] with Order[BigDecimal] with Show[BigDecimal] {
+trait BigDecimalInstances {
+  implicit object bigDecimalInstance extends Monoid[BigDecimal] with Order[BigDecimal] with Show[BigDecimal] {
     def show(f: BigDecimal): List[Char] = f.toString.toList
 
     def append(f1: BigDecimal, f2: => BigDecimal): BigDecimal = f1 + f2
@@ -28,6 +28,4 @@ trait BigDecimals {
   }
 }
 
-object BigDecimal extends BigDecimals {
-
-}
+object bigDecimal extends BigDecimalInstances

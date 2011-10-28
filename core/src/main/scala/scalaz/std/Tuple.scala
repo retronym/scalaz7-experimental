@@ -1,7 +1,7 @@
 package scalaz
 package std
 
-trait TuplesLow0 {
+trait TupleInstances0 {
   implicit def tuple1Semigroup[A1: Semigroup] = new Semigroup[Tuple1[A1]] {
     def append(f1: Tuple1[A1], f2: => Tuple1[A1]): Tuple1[A1] = (
       Tuple1(Semigroup[A1].append(f1._1, f2._1))
@@ -13,7 +13,7 @@ trait TuplesLow0 {
     implicit def _2: Semigroup[A2] = A2
   }
   
-  implicit def tuple2[A1, A2] = new BiTraverse[Tuple2] {
+  implicit def tuple2Instance[A1, A2] = new BiTraverse[Tuple2] {
     override def bimap[A, B, C, D](fab: (A, B))(f: (A) => C, g: (B) => D): (C, D) = (f(fab._1), g(fab._2))
     def bitraverse[G[_]: Applicative, A, B, C, D](fab: (A, B))(f: (A) => G[C], g: (B) => G[D]): G[(C, D)] = {
       Applicative[G].lift2((c: C, d: D) => (c, d))(f(fab._1), g(fab._2))
@@ -21,7 +21,7 @@ trait TuplesLow0 {
   }
 }
 
-trait Tuples extends TuplesLow0 {
+trait TupleInstances extends TupleInstances0 {
   implicit def tuple2Monoid[A1, A2](implicit A1: Monoid[A1], A2: Monoid[A2]) = new Tuple2Monoid[A1, A2] {
     implicit def _1: Monoid[A1] = A1
     implicit def _2: Monoid[A2] = A2
@@ -30,9 +30,7 @@ trait Tuples extends TuplesLow0 {
   // TODO pump up the arity.
 }
 
-object Tuple extends Tuples {
-  
-}
+object tuple extends TupleInstances
 
 //
 // Type class implementation traits
