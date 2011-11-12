@@ -16,9 +16,11 @@ sealed trait Tree[A] {
   /** The child nodes of this tree. */
   def subForest: Stream[Tree[A]]
 
-  /** Maps the elements of the Tree into a Monoid and folds the resulting Tree. */
-  def foldMap[B: Monoid](f: A => B): B =
-    Monoid[B].append(f(rootLabel), Foldable[Stream].foldMap[Tree[A], B](subForest)((_: Tree[A]).foldMap(f)))
+  /** Maps the elements of the Tree into a Semigroup and folds the resulting Tree. */
+  def reduceMap[B: Semigroup](f: A => B): B = {
+    import std.option._
+    Semigroup[B].append(some(f(rootLabel)), Foldable[Stream].foldMap1[Tree[A], B](subForest)((_: Tree[A]).reduceMap(f))).get
+  }
 
   def foldRight[B](z: => B)(f: (A, => B) => B): B =
     Foldable[Stream].foldRight(flatten, z)(f)
@@ -111,7 +113,7 @@ object Tree extends TreeFunctions with TreeInstances {
 }
 
 trait TreeInstances {
-  implicit object treeInstance extends Traverse[Tree] with Monad[Tree] with CoMonad[Tree] with CoBind.FromCoJoin[Tree] {
+  implicit object treeInstance extends Traverse[Tree] with Reducible[Tree] with Monad[Tree] with CoMonad[Tree] with CoBind.FromCoJoin[Tree] {
     def point[A](a: => A): Tree[A] = Tree.leaf(a)
     def cojoin[A](a: Tree[A]): Tree[Tree[A]] = a.cobind(identity(_))
     def copoint[A](p: Tree[A]): A = p.rootLabel
@@ -119,7 +121,9 @@ trait TreeInstances {
     def bind[A, B](fa: Tree[A])(f: (A) => Tree[B]): Tree[B] = fa flatMap f
     def traverseImpl[G[_]: Applicative, A, B](fa: Tree[A])(f: (A) => G[B]): G[Tree[B]] = fa traverse f
     def foldRight[A, B](fa: Tree[A], z: => B)(f: (A, => B) => B): B = fa.foldRight(z)(f)
-    override def foldMap[A, B](fa: Tree[A])(f: (A) => B)(implicit F: Monoid[B]): B = fa foldMap f
+    def reduceMap[A, B](fa: Tree[A])(f: (A) => B)(implicit B: Semigroup[B]): B = fa reduceMap f
+    def reduceRight[A](fa: Tree[A])(f: (A, A) => A): A = null
+    def reduceLeft[A](fa: Tree[A])(f: (A, A) => A): A = null
   }
 
   /* TODO

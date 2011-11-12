@@ -53,7 +53,7 @@ object MixedBag extends App {
     r assert_=== "12345."
     val f = tree.flatten.foldMap(_.toString)
     f assert_=== "12345"
-    val m = tree.foldMap(_.toString)
+    val m = tree.reduceMap(_.toString)
     m assert_=== "12345"
   }
 

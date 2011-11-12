@@ -83,16 +83,16 @@ sealed trait Heap[A] {
   }
 
   /**Map a function over the heap, returning a new heap ordered appropriately. O(n)*/
-  def map[B: Order](f: A => B) = fold(Empty[B], (_, _, t) => t.foldMap(x => singleton(f(x.value))))
+  def map[B: Order](f: A => B) = fold(Empty[B], (_, _, t) => t.reduceMap(x => singleton(f(x.value))))
 
   /**Filter the heap, retaining only values that satisfy the predicate. O(n)*/
   def filter(p: A => Boolean): Heap[A] =
-    fold(Empty[A], (_, leq, t) => t foldMap (x => if (p(x.value)) singletonWith(leq, x.value) else Empty[A]))
+    fold(Empty[A], (_, leq, t) => t reduceMap (x => if (p(x.value)) singletonWith(leq, x.value) else Empty[A]))
 
   /**Partition the heap according to a predicate. The first heap contains all elements that
    * satisfy the predicate. The second contains all elements that fail the predicate. O(n)*/
   def partition(p: A => Boolean): (Heap[A], Heap[A]) =
-    fold((Empty[A], Empty[A]), (_, leq, t) => t.foldMap(x =>
+    fold((Empty[A], Empty[A]), (_, leq, t) => t.reduceMap(x =>
       if (p(x.value)) (singletonWith(leq, x.value), Empty[A])
       else
         (Empty[A], singletonWith(leq, x.value))))
@@ -105,7 +105,7 @@ sealed trait Heap[A] {
         (singletonWith(leq, x), Empty[A], Empty[A])
       else
         (Empty[A], Empty[A], singletonWith(leq, x))
-      t foldMap (x => f(x.value))
+      t reduceMap (x => f(x.value))
     })
   }
 
@@ -151,7 +151,7 @@ sealed trait Heap[A] {
 
   /**Construct heaps from each element in this heap and union them together into a new heap. O(n)*/
   def flatMap[B: Order](f: A => Heap[B]): Heap[B] =
-    fold(Empty[B], (_, _, t) => t foldMap (x => f(x.value)))
+    fold(Empty[B], (_, _, t) => t reduceMap (x => f(x.value)))
 
   /**Traverse the elements of the heap in sorted order and produce a new heap with applicative effects.
    * O(n log n)*/
