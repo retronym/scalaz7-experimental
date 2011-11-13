@@ -97,19 +97,19 @@ Type class instances are packged in a a trait `ClassifiedTypeInstances`.
 
 The implicit members within the `Instances` class should be named:
 
-`classifiedTypeInstance` // the primary instance, e.g. `implicit object optionInstance extends MonadPlus[Option] with Traverse[Option]`.
-`classifiedTypeTypeClassName` // additional instances, e.g. `implicit def optionSemigroup[A]`
+ * `classifiedTypeInstance` // the primary instance, e.g. `implicit object optionInstance extends MonadPlus[Option] with Traverse[Option]`.
+ * `classifiedTypeTypeClassName` // additional instances, e.g. `implicit def optionSemigroup[A]`
 
 ### Scala and Java standard libary
 
 Instances are organized under `scalaz.std` according the the package of the classified type. The package prefix `scala`
 is ommited. Where a type is aliased under the package `scala`, the shorter path to the alias determines the location
 of the type class.
-
-`scala.Option` => `scalaz.std.option._`
-`scala.List` => `scalaz.std.list._`
-`scala.math.BigInt` => `scalaz.std.math.bigInt`
-`java.math.BigInteger` => `scalaz.std.java.math.bigInteger`
+ 
+ * `scala.Option`: `scalaz.std.option._`
+ * `scala.List`: `scalaz.std.list._`
+ * `scala.math.BigInt`: `scalaz.std.math.bigInt`
+ * `java.math.BigInteger`: `scalaz.std.java.math.bigInteger`
 
 In the file `ClassifiedType.scala`, define the trait `ClassifiedTypeInstances`, and mix it into a) an object `classifiedType`,
 and b) `scalaz.std.AllInstances`.
